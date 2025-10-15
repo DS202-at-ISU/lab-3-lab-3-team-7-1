@@ -1,4 +1,3 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/LsTaLPbx)
 
 <!-- README.md is generated from README.Rmd. Please edit the README.Rmd file -->
 
@@ -27,44 +26,48 @@ Extract from the data below two data sets in long form `deaths` and
 
 ``` r
 av <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", stringsAsFactors = FALSE)
-head(av)
-```
+#deaths per avenger
+deaths <- av |> 
+  select(
+    Name.Alias,
+    starts_with("Death")
+  ) |> 
+  pivot_longer(
+    Death1:Death5,
+    names_to = "Time",
+    values_to = "Died"
+  ) |>
+  separate(
+    `Time`,
+    into = c("drop", "Time"),
+    sep = "Death",
+    remove = TRUE
+  ) |> 
+  select(-drop
+  ) |> 
+  filter(Died != "")
 
-    ##                                                       URL
-    ## 1           http://marvel.wikia.com/Henry_Pym_(Earth-616)
-    ## 2      http://marvel.wikia.com/Janet_van_Dyne_(Earth-616)
-    ## 3       http://marvel.wikia.com/Anthony_Stark_(Earth-616)
-    ## 4 http://marvel.wikia.com/Robert_Bruce_Banner_(Earth-616)
-    ## 5        http://marvel.wikia.com/Thor_Odinson_(Earth-616)
-    ## 6       http://marvel.wikia.com/Richard_Jones_(Earth-616)
-    ##                    Name.Alias Appearances Current. Gender Probationary.Introl
-    ## 1   Henry Jonathan "Hank" Pym        1269      YES   MALE                    
-    ## 2              Janet van Dyne        1165      YES FEMALE                    
-    ## 3 Anthony Edward "Tony" Stark        3068      YES   MALE                    
-    ## 4         Robert Bruce Banner        2089      YES   MALE                    
-    ## 5                Thor Odinson        2402      YES   MALE                    
-    ## 6      Richard Milhouse Jones         612      YES   MALE                    
-    ##   Full.Reserve.Avengers.Intro Year Years.since.joining Honorary Death1 Return1
-    ## 1                      Sep-63 1963                  52     Full    YES      NO
-    ## 2                      Sep-63 1963                  52     Full    YES     YES
-    ## 3                      Sep-63 1963                  52     Full    YES     YES
-    ## 4                      Sep-63 1963                  52     Full    YES     YES
-    ## 5                      Sep-63 1963                  52     Full    YES     YES
-    ## 6                      Sep-63 1963                  52 Honorary     NO        
-    ##   Death2 Return2 Death3 Return3 Death4 Return4 Death5 Return5
-    ## 1                                                            
-    ## 2                                                            
-    ## 3                                                            
-    ## 4                                                            
-    ## 5    YES      NO                                             
-    ## 6                                                            
-    ##                                                                                                                                                                              Notes
-    ## 1                                                                                                                Merged with Ultron in Rage of Ultron Vol. 1. A funeral was held. 
-    ## 2                                                                                                  Dies in Secret Invasion V1:I8. Actually was sent tto Microverse later recovered
-    ## 3 Death: "Later while under the influence of Immortus Stark committed a number of horrible acts and was killed.'  This set up young Tony. Franklin Richards later brought him back
-    ## 4                                                                               Dies in Ghosts of the Future arc. However "he had actually used a hidden Pantheon base to survive"
-    ## 5                                                      Dies in Fear Itself brought back because that's kind of the whole point. Second death in Time Runs Out has not yet returned
-    ## 6                                                                                                                                                                             <NA>
+#returns per avenger
+returns <- av |>
+  select(
+    Name.Alias,
+    starts_with("Return")
+  ) |> 
+  pivot_longer(
+    Return1:Return5,
+    names_to = "Time",
+    values_to = "Returned"
+  ) |>
+  separate(
+    `Time`,
+    into = c("drop", "Time/s"),
+    sep = "Return",
+    remove = TRUE
+  ) |> 
+  select(-drop
+  ) |> 
+  filter(Returned != "")
+```
 
 Get the data into a format where the five columns for Death\[1-5\] are
 replaced by two columns: Time, and Death. Time should be a number
@@ -74,8 +77,25 @@ data set `deaths`.
 
 Similarly, deal with the returns of characters.
 
-Based on these datasets calculate the average number of deaths an
+Based on these data sets calculate the average number of deaths an
 Avenger suffers.
+
+``` r
+#average number of deaths per Avenger
+deaths |> 
+  group_by(Name.Alias) |>
+  summarise(death_count = n()) |>
+  summarise(avg_deaths = mean(death_count))
+```
+
+    ## # A tibble: 1 × 1
+    ##   avg_deaths
+    ##        <dbl>
+    ## 1       1.19
+
+``` r
+#1.19 
+```
 
 ## Individually
 
@@ -102,3 +122,24 @@ fact-checking endeavor.
 
 Upload your changes to the repository. Discuss and refine answers as a
 team.
+
+## Betsy’s Work
+
+> “Out of 173 listed Avengers, my analysis found that 69 had died at
+> least one time after they joined the team”
+
+``` r
+deaths |> 
+  group_by(Name.Alias) |>
+  summarise(death_count = n()) |>
+  filter(death_count == 1) |> 
+  summarise(one_death = n())
+```
+
+    ## # A tibble: 1 × 1
+    ##   one_death
+    ##       <int>
+    ## 1       145
+
+145 Avengers with exactly one death according to this data set which
+differs from FiveThirtyEight’s analysis of 69 Avengers with one death.
