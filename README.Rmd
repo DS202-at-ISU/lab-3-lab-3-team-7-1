@@ -11,7 +11,7 @@ library(tidyr)
 library(readr)
 ```
 
-# Lab report #3 - instructions
+# Lab report #3 - Instructions
 
 Follow the instructions posted at <https://ds202-at-isu.github.io/labs.html> for the lab assignment. The work is meant to be finished during the lab time, but you have time until Monday evening to polish things.
 
@@ -23,68 +23,61 @@ All submissions to the github repo will be automatically uploaded for grading on
 
 ## As a team
 
-Extract from the data below two data sets in long form `deaths` and `returns`
-
 ```{r}
 av <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", stringsAsFactors = FALSE)
-#deaths per avenger
-deaths <- av |> 
-  select(
-    Name.Alias,
-    starts_with("Death")
-  ) |> 
-  pivot_longer(
-    Death1:Death5,
-    names_to = "Time",
-    values_to = "Died"
-  ) |>
-  separate(
-    `Time`,
-    into = c("drop", "Time"),
-    sep = "Death",
-    remove = TRUE
-  ) |> 
-  select(-drop
-  ) |> 
-  filter(Died != "")
-
-#returns per avenger
-returns <- av |>
-  select(
-    Name.Alias,
-    starts_with("Return")
-  ) |> 
-  pivot_longer(
-    Return1:Return5,
-    names_to = "Time",
-    values_to = "Returned"
-  ) |>
-  separate(
-    `Time`,
-    into = c("drop", "Time/s"),
-    sep = "Return",
-    remove = TRUE
-  ) |> 
-  select(-drop
-  ) |> 
-  filter(Returned != "")
-
+head(av)
 ```
 
 Get the data into a format where the five columns for Death[1-5] are replaced by two columns: Time, and Death. Time should be a number between 1 and 5 (look into the function `parse_number`); Death is a categorical variables with values "yes", "no" and "". Call the resulting data set `deaths`.
 
+```{r}
+# Deaths per avenger
+deaths <- av |> 
+  select(Name.Alias, starts_with("Death")) |> 
+  pivot_longer(
+    Death1:Death5,
+    names_to = "Time",
+    values_to = "Death"
+  ) |>
+  mutate(
+    Time = parse_number(Time)
+  ) |>
+  filter(Death != "")
+
+head(deaths)
+```
+
+
 Similarly, deal with the returns of characters.
+```{r}
+# Returns per avenger
+returns <- av |>
+  select(Name.Alias, starts_with("Return")) |> 
+  pivot_longer(
+    Return1:Return5,
+    names_to = "Time",
+    values_to = "Return"
+  ) |>
+  mutate(
+    Time = parse_number(Time)
+  ) |>
+  filter(Return != "")
+
+head(returns)
+```
 
 Based on these data sets calculate the average number of deaths an Avenger suffers.
-
 ```{r aver_deaths}
-#average number of deaths per Avenger
-deaths |> 
+# Average number of deaths per Avenger
+avg_deaths <- deaths |> 
+  filter(Death == "YES") |>  
   group_by(Name.Alias) |>
   summarise(death_count = n()) |>
   summarise(avg_deaths = mean(death_count))
-#1.19 
+
+avg_deaths
 ```
+The average number of deaths an Avenger suffer's is 1.39.
 
 ## Individually
 
@@ -92,25 +85,16 @@ For each team member, copy this part of the report.
 
 Each team member picks one of the statements in the FiveThirtyEight [analysis](https://fivethirtyeight.com/features/avengers-death-comics-age-of-ultron/) and fact checks it based on the data. Use dplyr functionality whenever possible.
 
-### FiveThirtyEight Statement
 
-> Quote the statement you are planning to fact-check.
 
-### Include the code
-
-Make sure to include the code to derive the (numeric) fact for the statement
-
-### Include your answer
-
-Include at least one sentence discussing the result of your fact-checking endeavor.
-
-Upload your changes to the repository. Discuss and refine answers as a team.
 
 ## Betsy's Work
 
+Quoted statement I plan to fact-check:
 > "Out of 173 listed Avengers, my analysis found that 69 had died at least one time after they joined the team"
 
-```{r died_once}
+Code to derive the (numeric) fact for the statement:
+```{r}
 deaths |> 
   group_by(Name.Alias) |>
   summarise(death_count = n()) |>
@@ -118,4 +102,33 @@ deaths |>
   summarise(one_death = n())
 ```
 
-145 Avengers with exactly one death according to this data set which differs from FiveThirtyEight's analysis of 69 Avengers with one death.
+The result:
+According to the dataset, there are 145 Avengers with exactly one death according to this data set which differs from FiveThirtyEight's analysis of 69 Avengers with one death.
+
+
+## Maurycy's Work
+
+Quoted statement I plan to fact-check:
+> "I counted 89 total deaths — some unlucky Avengers are basically Meat Loaf with an E-ZPass — and on 57 occasions the individual made a comeback."
+
+Code to derive the (numeric) fact for the statement:
+```{r}
+# Total deaths
+total_deaths <- deaths |> 
+  filter(Death == "YES") |> 
+  nrow()
+
+total_deaths
+```
+
+```{r}
+# Total returns
+total_returns <- returns |> 
+  filter(Return == "YES") |> 
+  nrow()
+
+total_returns
+```
+
+The result:
+According to the dataset, there are 89 total recorded deaths and 57 returns, which matches the numbers reported in the FiveThirtyEight analysis.
