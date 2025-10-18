@@ -143,7 +143,7 @@ avg_deaths
     ##        <dbl>
     ## 1       1.39
 
-The average number of deaths an Avenger suffer’s is 1.39.
+The average number of deaths an Avenger suffer’s is 1.39
 
 ## Individually
 
