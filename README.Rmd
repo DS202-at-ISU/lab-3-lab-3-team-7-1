@@ -154,4 +154,6 @@ list(
   deaths = jocasta_deaths$total_deaths,
   returns = jocasta_returns$total_returns
 )
-
+```
+The result:
+According to the data set, there are 5 deaths and 5 returns for Jocasta, so the statement is indeed true!

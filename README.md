@@ -240,3 +240,6 @@ list(
     ## 
     ## $returns
     ## [1] 5
+
+The result: According to the data set, there are 5 deaths and 5 returns
+for Jocasta, so the statement is indeed true!
