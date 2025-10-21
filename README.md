@@ -212,3 +212,31 @@ total_returns
 The result: According to the dataset, there are 89 total recorded deaths
 and 57 returns, which matches the numbers reported in the
 FiveThirtyEight analysis.
+
+## Anthony’s Work
+
+Quoted statement I plan to fact-check: \> “The MVP … has to be Jocasta …
+who has been destroyed five times and then recovered five times.”
+
+``` r
+# Deaths for Jocasta
+jocasta_deaths <- deaths |>
+  filter(Death == "YES", Name.Alias == "Jocasta") |>
+  summarise(total_deaths = n())
+
+# Returns for Jocasta
+jocasta_returns <- returns |>
+  filter(Return == "YES", Name.Alias == "Jocasta") |>
+  summarise(total_returns = n())
+
+list(
+  deaths = jocasta_deaths$total_deaths,
+  returns = jocasta_returns$total_returns
+)
+```
+
+    ## $deaths
+    ## [1] 5
+    ## 
+    ## $returns
+    ## [1] 5
